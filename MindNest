@@ -1,0 +1,475 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MindNestApp());
+
+class MindNestApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'MindNest',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.amber),
+      home: HomeScreen(),
+    );
+  }
+}
+
+
+//////////////////// HOME ////////////////////
+
+class HomeScreen extends StatelessWidget {
+  void _navigate(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("MindNest — Grow, Recall, Test"),
+        centerTitle: true,
+        backgroundColor: Colors.amber.shade600,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.yellow.shade100, Colors.amber.shade100],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.local_florist, size: 80, color: Colors.amber.shade800),
+              Text(
+                "MindNest",
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Colors.amber.shade900,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "Grow • Recall • Test",
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 40),
+              _menuButton(
+                context,
+                Icons.account_tree,
+                "TopicTree",
+                Colors.green.shade400,
+                Colors.white,
+                TopicTreeScreen(),
+              ),
+              SizedBox(height: 15),
+              _menuButton(
+                context,
+                Icons.style,
+                "FocusCards",
+                Colors.deepPurple,
+                Colors.white,
+                FocusCardsScreen(),
+              ),
+              SizedBox(height: 15),
+              _menuButton(
+                context,
+                Icons.quiz,
+                "QuizTrail",
+                Colors.lightBlueAccent.shade700,
+                Colors.white,
+                QuizTrailScreen(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuButton(
+    BuildContext context,
+    IconData icon,
+    String title,
+    Color color,
+    Color textColor,
+    Widget page,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: () => _navigate(context, page),
+      icon: Icon(icon, color: textColor),
+      label: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        minimumSize: Size(double.infinity, 60),
+        shape: StadiumBorder(),
+        shadowColor: Colors.black26,
+        elevation: 6,
+      ),
+    );
+  }
+}
+
+//////////////////// TOPIC TREE ////////////////////
+
+class TopicTreeScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> topics = [
+    {
+      'title': 'Computer Networks',
+      'children': [
+        {
+          'title': 'Unit 1 - Basics',
+          'children': [
+            {'title': 'What is a Network?'},
+            {'title': 'Types: LAN, WAN, MAN'},
+            {'title': 'Topologies'},
+            {'title': 'Network History'}
+          ]
+        },
+        {
+          'title': 'Unit 2 - OSI Model',
+          'children': [
+            {'title': '7 Layers Overview'},
+            {'title': 'Physical layer,Data Link Layer'},
+            {'title': 'Network layer,Transport layer'},
+            {'title': 'Session Layer,Presentation Layer,Application Layer'},
+            {'title': 'Encapsulation'}
+          ]
+        },
+      ]
+    },
+    {
+      'title': 'Operating Systems',
+      'children': [
+        {
+          'title': 'Unit 1 - Process Management',
+          'children': [
+            {'title': 'Threads & Scheduling'},
+            {'title': 'Synchronization'}
+          ]
+        },
+        {
+          'title': 'Unit 2 - Memory Management',
+          'children': [
+            {'title': 'Paging'},
+            {'title': 'Segmentation'}
+          ]
+        }
+      ]
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("TopicTree"), backgroundColor: Colors.green.shade500),
+      body: ListView(
+        padding: EdgeInsets.all(10),
+        children: topics.map((t) => _buildNode(t, 0)).toList(),
+      ),
+    );
+  }
+
+  Widget _buildNode(Map<String, dynamic> node, int level) {
+    bool hasChildren = node['children'] != null;
+    return Padding(
+      padding: EdgeInsets.only(left: 16.0 * level, top: 4, bottom: 4),
+      child: Card(
+        child: ExpansionTile(
+          leading: Icon(hasChildren ? Icons.folder : Icons.circle,
+              color: Colors.green.shade400, size: hasChildren ? 28 : 10),
+          title: Text(node['title'],
+              style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87)),
+          children: hasChildren
+              ? (node['children'] as List)
+                  .map((child) => _buildNode(child, level + 1))
+                  .toList()
+              : [],
+        ),
+      ),
+    );
+  }
+}
+
+//////////////////// FOCUS CARDS ////////////////////
+
+class FocusCardsScreen extends StatefulWidget {
+  @override
+  _FocusCardsScreenState createState() => _FocusCardsScreenState();
+}
+
+class _FocusCardsScreenState extends State<FocusCardsScreen> {
+  final List<Map<String, String>> cards = [
+    {'q': 'What is CRM?', 'a': 'Customer Relationship Management'},
+    {'q': 'Define OSI Model.', 'a': 'Seven-layer network architecture'},
+    {'q': 'What is Polymorphism?', 'a': 'Different behavior with same interface'},
+  ];
+  int index = 0;
+  bool showAnswer = false;
+
+  void nextCard() {
+    setState(() {
+      index = (index + 1) % cards.length;
+      showAnswer = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final card = cards[index];
+    return Scaffold(
+      appBar: AppBar(title: Text('FocusCards'), backgroundColor: Colors.deepPurple),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple.shade50, Colors.deepPurple.shade100],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => showAnswer = !showAnswer),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)]),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          showAnswer ? card['a']! : card['q']!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton.icon(
+                icon: Icon(Icons.arrow_forward),
+                label: Text("Next Card"),
+                onPressed: nextCard,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  shape: StadiumBorder(),
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//////////////////// QUIZ TRAIL (Improved) ////////////////////
+
+class QuizTrailScreen extends StatefulWidget {
+  @override
+  _QuizTrailScreenState createState() => _QuizTrailScreenState();
+}
+
+class _QuizTrailScreenState extends State<QuizTrailScreen> {
+  final List<Map<String, dynamic>> questions = [
+    {
+      'q': 'Which layer handles routing?',
+      'options': ['Transport', 'Network', 'Session'],
+      'a': 'Network'
+    },
+    {
+      'q': 'Which SQL command creates a table?',
+      'options': ['INSERT', 'CREATE', 'DELETE'],
+      'a': 'CREATE'
+    },
+    {
+      'q': 'RAM stands for?',
+      'options': [
+        'Random Access Memory',
+        'Run All Memory',
+        'Read Access Memory'
+      ],
+      'a': 'Random Access Memory'
+    },
+  ];
+
+  int index = 0;
+  int score = 0;
+  bool finished = false;
+
+  void check(String opt) {
+    if (opt == questions[index]['a']) score++;
+    if (index == questions.length - 1) {
+      setState(() => finished = true);
+    } else {
+      setState(() => index++);
+    }
+  }
+
+  void reset() {
+    setState(() {
+      index = 0;
+      score = 0;
+      finished = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('QuizTrail'),
+        centerTitle: true,
+        backgroundColor: Colors.lightBlueAccent.shade700,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.lightBlue.shade200, Colors.lightBlueAccent.shade100],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: finished ? _buildResultView() : _buildQuestionView(),
+      ),
+    );
+  }
+
+  // ---------- Question UI ----------
+  Widget _buildQuestionView() {
+    final currentQ = questions[index];
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 20),
+          Icon(Icons.quiz, size: 80, color: Colors.blue.shade900),
+          SizedBox(height: 20),
+          Text(
+            "Question ${index + 1} of ${questions.length}",
+            style: TextStyle(
+              color: Colors.blue.shade900,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          SizedBox(height: 10),
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+            ),
+            child: Text(
+              currentQ['q'],
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+          ),
+          SizedBox(height: 15),
+          ...currentQ['options'].map<Widget>((opt) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: ElevatedButton(
+                onPressed: () => check(opt),
+                child: Text(opt, style: TextStyle(fontSize: 16)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade400,
+                  minimumSize: Size(double.infinity, 48),
+                  shape: StadiumBorder(),
+                ),
+              ),
+            );
+          }).toList(),
+          Spacer(),
+          Text(
+            "Score: $score",
+            style: TextStyle(
+                color: Colors.blue.shade900,
+                fontWeight: FontWeight.bold,
+                fontSize: 18),
+          ),
+          SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  // ---------- Result UI ----------
+  Widget _buildResultView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.emoji_events, size: 100, color: Colors.amber.shade700),
+            SizedBox(height: 20),
+            Text(
+              "🎉 Quiz Completed!",
+              style: TextStyle(
+                  fontSize: 26,
+                  color: Colors.blue.shade900,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Your Score: $score / ${questions.length}",
+              style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.blue.shade800,
+                  fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton.icon(
+              icon: Icon(Icons.replay),
+              label: Text("Play Again"),
+              onPressed: reset,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightBlueAccent.shade700,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: StadiumBorder(),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
